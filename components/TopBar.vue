@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useStore } from '@/store/store'
+import { storeToRefs } from 'pinia'
 
-const { activeBoard, boards } = useStore()
+const store = useStore()
+const { activeBoard, boards } = storeToRefs(store)
 
-const board = computed(() => boards.find((board) => board.id === activeBoard))
+const board = computed(() => boards.value.find((board) => board.id === activeBoard.value))
 
 </script>
 

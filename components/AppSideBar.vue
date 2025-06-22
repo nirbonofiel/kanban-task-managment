@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { useSidebar } from "@/components/ui/sidebar/utils";
 import { useStore } from "@/store/store";
+import { storeToRefs } from 'pinia';
 
-const { boards, activeBoard } = useStore();
+const store = useStore();
+const { boards, activeBoard } = storeToRefs(store);
+const { setActiveBoard } = store;
 const { toggleSidebar, open } = useSidebar();
 </script>
 
@@ -18,7 +21,7 @@ const { toggleSidebar, open } = useSidebar();
         <UiSidebarGroupContent >
           <UiSidebarMenu>
             <UiSidebarMenuItem v-for="board in boards" :key="board.id">
-              <UiSidebarMenuButton asChild class="w-3xs h-12">
+              <UiSidebarMenuButton asChild class="w-3xs h-12" @click="setActiveBoard(board.id)">
                 <div
                   class="flex items-center gap-2 pl-8 transition-all duration-300 cursor-pointer rounded-md"
                   :class="

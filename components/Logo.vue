@@ -1,19 +1,14 @@
 <template>
   <div class="w-75">
-    <IconsLogoLight v-if="isDark.value === 'light'" />
+    <IconsLogoLight v-if="darkMode" />
     <IconsLogoDark v-else />
   </div>
 </template>
 
 <script setup>
-import { useColorMode } from "@vueuse/core";
-import { computed, onMounted } from 'vue';
-
-const isDark = useColorMode();
-
-// Debug initial value
-onMounted(() => {
-  console.log('Initial color mode:', isDark.value);
-});
+import { useStore } from '@/store/store'
+import { storeToRefs } from 'pinia'
+const store = useStore()
+const { darkMode } = storeToRefs(store)
 
 </script>
