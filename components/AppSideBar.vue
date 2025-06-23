@@ -5,8 +5,9 @@ import { storeToRefs } from 'pinia';
 
 const store = useStore();
 const { boards, activeBoard } = storeToRefs(store);
-const { setActiveBoard } = store;
+const { setActiveBoard, createBoard } = store;
 const { toggleSidebar, open } = useSidebar();
+
 </script>
 
 <template>
@@ -37,10 +38,7 @@ const { toggleSidebar, open } = useSidebar();
             </UiSidebarMenuItem>        
             <UiSidebarMenuItem>
             <UiSidebarMenuButton asChild class="w-3xs">
-              <div class="flex items-center gap-2 pl-8  cursor-pointer text-(--color-purple-light) hover:opacity-[.6]">
-                <IconsBoardIcon fill="#635FC7"/>
-                <span class="ml-2 text-base font-medium">+ Create new board</span>
-              </div>
+              <CreateBoard @create-board="createBoard" />
             </UiSidebarMenuButton>
             </UiSidebarMenuItem>
           </UiSidebarMenu>

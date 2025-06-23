@@ -11,15 +11,30 @@ export const useStore = defineStore('store', () => {
     activeBoard.value = boardId
   }
 
-  function toggleDark() {
+  const toggleDark = () => {
     darkMode.value = !darkMode.value;
   }
 
+  const createBoard = (board: Omit<Board, "id">) => {
+    boards.push({
+      ...board,
+      id: boards.length + 1
+    })
+    activeBoard.value = boards.length
+  }
+
+  
+
+
+
   return {
+    // State
     darkMode,
     activeBoard,
     boards,
+    // Actions
     setActiveBoard,
     toggleDark,
+    createBoard,
   }
 })
