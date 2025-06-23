@@ -3,21 +3,11 @@ import { useStore } from '@/store/store'
 import { storeToRefs } from 'pinia'
 
 const store = useStore()
+const { updateColumns } = store
 const { boards, activeBoard } = storeToRefs(store)
 
 const board = computed(() => boards.value.find((board) => board.id === activeBoard.value)) 
 
-// const handleCreateColumn = (column: { name: string; tasks: any[] }) => {
-//   // Add the new column to the current board
-//   if (board.value) {
-//     const newColumn = {
-//       id: Date.now(), // Simple ID generation
-//       name: column.name,
-//       tasks: column.tasks
-//     };
-//     board.value.columns.push(newColumn);
-//   }
-// };
 </script>
 
 <template>
@@ -25,7 +15,7 @@ const board = computed(() => boards.value.find((board) => board.id === activeBoa
     <Column v-for="column in board?.columns" :key="column.id" :column="column" />
     <div class="h-[80vh] flex flex-col min-w-3xs mt-8">
       <div class="flex items-center justify-center rounded-md h-full bg-gradient-to-b from-(--color-gray-linear-start) via-(--color-gray-linear-middle) to-(--color-gray-linear-end)">
-        <CreateColumn  />
+        <CreateColumn @create-column="updateColumns" />
       </div>
     </div>
   </div>

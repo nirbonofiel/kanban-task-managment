@@ -1,18 +1,35 @@
 <script setup lang="ts">
 import { useStore } from "@/store/store";
 import { storeToRefs } from "pinia";
-import ColumnSlot from "./ColumnSlot.vue";
 
 const store = useStore();
-const { createBoard } = storeToRefs(store);
+const { boards, activeBoard } = storeToRefs(store);
 
-const boardName = ref("");
-const columns = ref([{ id: 1, name: "", tasks: [] }]);
-const columnId = ref(1);
+const board = computed(() =>
+  boards.value.find((board) => board.id === activeBoard.value)
+);
 
 const emit = defineEmits<{
-  (e: "create-board", board: { name: string; columns: Column[] }): void;
+  (e: "create-column", columns: Column[]): void;
 }>();
+
+const columns = ref(board.value?.columns || [{ id: 1, name: "", tasks: [] }]);
+
+const columnId = ref(board.value?.columns.length || 1);
+
+watch(
+  board,
+  (newBoard) => {
+    if (newBoard && newBoard.columns.length > 0) {
+      columns.value = newBoard.columns.map((col) => ({ ...col }));
+      columnId.value = Math.max(...newBoard.columns.map((col) => col.id)) + 1;
+    } else {
+      columns.value = [{ id: 1, name: "", tasks: [] }];
+      columnId.value = 1;
+    }
+  },
+  { immediate: true }
+);
 
 const handleAddNewColumn = () => {
   columnId.value++;
@@ -24,14 +41,10 @@ const handleRemoveColumn = (columnId: number) => {
 };
 
 const handleSubmit = () => {
-  emit("create-board", {
-    name: boardName.value.trim(),
-    columns: columns.value,
-  });
+  emit("create-column", columns.value);
 
-  boardName.value = "";
-  columns.value = [{ id: 1, name: "", tasks: [] }];
-  columnId.value = 1;
+  columns.value = board.value?.columns || [{ id: 1, name: "", tasks: [] }];
+  columnId.value = board.value?.columns.length || 1;
 
   const dialogTrigger = document.querySelector('[data-state="open"]');
   if (dialogTrigger) {
@@ -41,41 +54,26 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <UiDialog id="create-board-dialog">
+  <UiDialog id="create-column-dialog">
     <UiDialogTrigger asChild>
-      <div
-        class="flex items-center gap-2 pl-8 cursor-pointer text-(--color-purple-light) hover:opacity-[.6]"
-      >
-        <IconsBoardIcon fill="#635FC7" />
-        <span class="ml-2 text-base font-medium">+ Create new board</span>
+      <div class="h-full flex items-center justify-center">
+        <span class="text-2xl font-bold text-(--color-gray-font) cursor-pointer"
+          >+ New Column</span
+        >
       </div>
     </UiDialogTrigger>
     <UiDialogContent
       class="max-w-[309px] bg-white dark:bg-(--color-sidebar) rounded-md"
     >
       <UiDialogTitle class="text-black dark:text-white"
-        >Add New Board</UiDialogTitle
+        >Add New Column</UiDialogTitle
       >
       <form @submit.prevent="handleSubmit">
         <div class="grid gap-4 py-4">
-          <div class="grid grid-rows items-center gap-4">
-            <UiLabel
-              for="name"
-              class="text-right text-(--color-gray-font) dark:text-white"
-            >
-              Name
-            </UiLabel>
-            <UiInput
-              id="name"
-              placeholder="e.g. Web Design"
-              class="col-span-3 border-(--color-gray-font) dark:border-(--border-color) dark:text-white"
-              v-model="boardName"
-              required
-            />
-          </div>
           <ColumnSlot
             :columns="columns"
-            :columnId="columnId"
+            :show-remove-button="columns.length > 1"
+            :column-id="columnId"
             @add-column="handleAddNewColumn"
             @remove-column="handleRemoveColumn"
           />
@@ -85,7 +83,7 @@ const handleSubmit = () => {
             type="submit"
             class="bg-(--color-purple-light) text-white w-full rounded-3xl"
           >
-            Create Board
+            Save Changes
           </UiButton>
         </UiDialogFooter>
       </form>

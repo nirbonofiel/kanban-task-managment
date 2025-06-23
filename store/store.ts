@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Board } from '@/types/boards'
+import type { Board, Column } from '@/types/boards'
 import initialBoards from '@/data/data.json'
 
 export const useStore = defineStore('store', () => {
@@ -23,7 +23,15 @@ export const useStore = defineStore('store', () => {
     activeBoard.value = boards.length
   }
 
-  
+  const updateColumns = (columns: Column[]) => {
+    const board = boards.find(board => board.id === activeBoard.value)
+    if (board) {
+      board.columns = columns
+      boards.map(board => board.id === activeBoard.value ? board : board)
+      console.log(boards);
+    }
+  }
+
 
 
 
@@ -36,5 +44,6 @@ export const useStore = defineStore('store', () => {
     setActiveBoard,
     toggleDark,
     createBoard,
+    updateColumns
   }
 })
