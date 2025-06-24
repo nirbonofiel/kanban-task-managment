@@ -3,6 +3,7 @@ import { useStore } from '@/store/store'
 import { storeToRefs } from 'pinia'
 
 const store = useStore()
+const { createTask } = store
 const { activeBoard, boards } = storeToRefs(store)
 
 const board = computed(() => boards.value.find((board) => board.id === activeBoard.value))
@@ -19,12 +20,13 @@ const board = computed(() => boards.value.find((board) => board.id === activeBoa
         {{ board?.name }}
       </h1>
       <div class="flex items-center gap-4">
-        <UiButton size="lg" class="rounded-3xl bg-(--color-purple-light)"
-          >+ Add new task</UiButton
-        >
-        <UiButton variant="ghost" class="cursor-pointer"
+        <CreateTask :board="board" @create-task="createTask" />
+        <span>
+          <IconsVerticalEllipsis />
+        </span>
+        <!-- <UiButton variant="ghost" class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full p-2"
           ><IconsVerticalEllipsis />
-        </UiButton>
+        </UiButton> -->
       </div>
     </div>
   </div>

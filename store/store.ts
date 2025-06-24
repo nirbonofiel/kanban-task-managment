@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Board, Column } from '@/types/boards'
+import type { Board, Column, Task } from '@/types/boards'
 import initialBoards from '@/data/data.json'
 
 export const useStore = defineStore('store', () => {
@@ -32,8 +32,32 @@ export const useStore = defineStore('store', () => {
     }
   }
 
+  const createTask = (task: Omit<Task, 'id'>) => {
+    console.log(task);
+    const board = boards.find(board => board.id === activeBoard.value)
+    if (!board) return
 
+    const targetColumn = board.columns.find(column => column.id === task.statusId)
+    if (!targetColumn) return
 
+    // Calculate a unique ID for the task
+    const allTasks = board.columns.flatMap(column => column.tasks)
+    const maxId = allTasks.length > 0 ? Math.max(...allTasks.map(t => t.id)) : 0
+    const newTaskId = maxId + 1
+
+    // Create the complete task object
+    const newTask: Task = {
+      ...task,
+      id: newTaskId,
+      status: targetColumn.name
+    }
+
+    // Add the task to the target column
+    targetColumn.tasks.push(newTask)
+    
+    console.log('New task created:', newTask)
+    console.log('Updated boards:', boards)
+  }
 
   return {
     // State
@@ -44,6 +68,7 @@ export const useStore = defineStore('store', () => {
     setActiveBoard,
     toggleDark,
     createBoard,
-    updateColumns
+    updateColumns,
+    createTask
   }
 })
