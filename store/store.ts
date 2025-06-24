@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Board, Column, Task } from '@/types/boards'
+import type { Board, Column, Subtask, Task } from '@/types/boards'
 import initialBoards from '@/data/data.json'
 
 export const useStore = defineStore('store', () => {
@@ -32,6 +32,47 @@ export const useStore = defineStore('store', () => {
     }
   }
 
+  const updateTask = (task: Task) => {
+    const board = boards.find(board => board.id === activeBoard.value)
+    if (!board) return
+
+    // Find the current column containing the task
+    const currentColumn = board.columns.find(column => 
+      column.tasks.some(t => t.id === task.id)
+    )
+    if (!currentColumn) return
+
+    // Find the target column based on the new statusId
+    const targetColumn = board.columns.find(column => column.id === task.statusId)
+    if (!targetColumn) return
+
+    // Remove the task from the current column
+    const currentTaskIndex = currentColumn.tasks.findIndex(t => t.id === task.id)
+    if (currentTaskIndex !== -1) {
+      currentColumn.tasks.splice(currentTaskIndex, 1)
+    }
+
+    // Add the task to the target column
+    targetColumn.tasks.push(task)
+  }
+
+  const updateSubtask = (task: Task) => {
+    const board = boards.find(board => board.id === activeBoard.value)
+    if (!board) return
+
+    // Find the current column containing the task
+    const currentColumn = board.columns.find(column => 
+      column.tasks.some(t => t.id === task.id)
+    )
+    if (!currentColumn) return
+
+    // Find the task in the current column
+    const currentTaskIndex = currentColumn.tasks.findIndex(t => t.id === task.id)
+    if (currentTaskIndex === -1) return
+
+    currentColumn.tasks[currentTaskIndex] = task
+  }
+
   const createTask = (task: Omit<Task, 'id'>) => {
     console.log(task);
     const board = boards.find(board => board.id === activeBoard.value)
@@ -54,9 +95,6 @@ export const useStore = defineStore('store', () => {
 
     // Add the task to the target column
     targetColumn.tasks.push(newTask)
-    
-    console.log('New task created:', newTask)
-    console.log('Updated boards:', boards)
   }
 
   return {
@@ -69,6 +107,8 @@ export const useStore = defineStore('store', () => {
     toggleDark,
     createBoard,
     updateColumns,
-    createTask
+    createTask,
+    updateTask,
+    updateSubtask
   }
 })

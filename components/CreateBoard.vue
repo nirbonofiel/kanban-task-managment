@@ -67,7 +67,6 @@ const handleSubmit = () => {
             </UiLabel>
             <UiInput
               id="name"
-              placeholder="e.g. Web Design"
               class="col-span-3 border-(--color-gray-font) dark:border-(--border-color) dark:text-white"
               v-model="boardName"
               required

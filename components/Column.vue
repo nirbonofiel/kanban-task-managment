@@ -19,7 +19,7 @@ defineProps<{
     </div>
     <div class="flex flex-col gap-2 "
     :class="column.tasks.length === 0 ? 'outline outline-dashed outline-gray-400 outline-2 rounded-md h-[80vh]' : ''">
-      <Task
+      <TaskDetails
         v-for="task in column.tasks"
         :key="task.id"
         :task="task"
@@ -27,7 +27,3 @@ defineProps<{
     </div>
   </div>
 </template>
-
-outline: 1px dashed rgba(130, 143, 163, .4);
-outline-width: 2px;
-border-radius: 6px;
