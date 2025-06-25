@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import type { Board, Column, Subtask, Task } from '@/types/boards'
+import type { Board, Column, Task } from '@/types/boards'
 import initialBoards from '@/data/data.json'
 
 export const useStore = defineStore('store', () => {
-  const boards = reactive<Board[]>(initialBoards.boards)
+  const boards = ref<Board[]>(initialBoards.boards)
   const darkMode = ref(document.documentElement.classList.contains("dark"))
   const activeBoard = ref(initialBoards.boards[0].id)
 
@@ -16,24 +16,24 @@ export const useStore = defineStore('store', () => {
   }
 
   const createBoard = (board: Omit<Board, "id">) => {
-    boards.push({
+    boards.value.push({
       ...board,
-      id: boards.length + 1
+      id: boards.value.length + 1
     })
-    activeBoard.value = boards.length
+    activeBoard.value = boards.value.length
   }
 
   const updateColumns = (columns: Column[]) => {
-    const board = boards.find(board => board.id === activeBoard.value)
+    const board = boards.value.find(board => board.id === activeBoard.value)
     if (board) {
       board.columns = columns
-      boards.map(board => board.id === activeBoard.value ? board : board)
-      console.log(boards);
+      boards.value.map(board => board.id === activeBoard.value ? board : board)
+      console.log(boards.value);
     }
   }
 
   const updateTask = (task: Task) => {
-    const board = boards.find(board => board.id === activeBoard.value)
+    const board = boards.value.find(board => board.id === activeBoard.value)
     if (!board) return
 
     // Find the current column containing the task
@@ -57,7 +57,7 @@ export const useStore = defineStore('store', () => {
   }
 
   const updateSubtask = (task: Task) => {
-    const board = boards.find(board => board.id === activeBoard.value)
+    const board = boards.value.find(board => board.id === activeBoard.value)
     if (!board) return
 
     // Find the current column containing the task
@@ -75,10 +75,11 @@ export const useStore = defineStore('store', () => {
 
   const createTask = (task: Omit<Task, 'id'>) => {
     console.log(task);
-    const board = boards.find(board => board.id === activeBoard.value)
+    const board = boards.value.find(board => board.id === activeBoard.value)
     if (!board) return
 
     const targetColumn = board.columns.find(column => column.id === task.statusId)
+    console.log(targetColumn);
     if (!targetColumn) return
 
     // Calculate a unique ID for the task
@@ -110,5 +111,11 @@ export const useStore = defineStore('store', () => {
     createTask,
     updateTask,
     updateSubtask
+  }
+}, {
+  persist: {
+    key: 'kanban-store',
+    storage: localStorage,
+    pick: ['boards', 'activeBoard']
   }
 })

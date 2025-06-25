@@ -6,7 +6,7 @@ defineProps<{
 const task = ref<Omit<Task, 'id' >>({
   title: "",
   description: "",
-  subtasks: [{ id: 0, name: "", isCompleted: false }],
+  subtasks: [{ id: 0, title: "", isCompleted: false }],
   status: "",
   statusId: 0,
 });
@@ -16,21 +16,24 @@ const emit = defineEmits<{
 }>();
 
 const handleAddNewSubtask = () => {
-  task.value.subtasks.push({ id: task.value.subtasks.length + 1, name: "", isCompleted: false });
+  task.value.subtasks.push({ id: task.value.subtasks.length + 1, title: "", isCompleted: false });
 };
 
-const handleRemoveSubtask = (subtaskId: number) => {
-  task.value.subtasks = task.value.subtasks.filter((subtask) => subtask.id !== subtaskId);
+const handleRemoveSubtask = (subtaskTitle: string) => {
+  task.value.subtasks = task.value.subtasks.filter((subtask) => subtask.title !== subtaskTitle);
+};
+
+const setStatus = (statusId: number) => {
+  task.value.statusId = statusId;
 };
 
 const handleSubmit = () => {
-  console.log(task.value);
   emit("create-task", task.value);
 
   task.value = {
     title: "",
     description: "",
-    subtasks: [{ id: 0, name: "", isCompleted: false }],
+    subtasks: [{ title: "", isCompleted: false }],
     status: "",
     statusId: 0,
   };
@@ -84,7 +87,6 @@ const handleSubmit = () => {
               id="description"
               class="col-span-3 border-(--color-gray-font) dark:border-(--border-color) dark:text-white"
               v-model="task.description"
-              required
             />
           </div>
           <div class="grid grid-rows items-center gap-4">
@@ -96,20 +98,20 @@ const handleSubmit = () => {
             </UiLabel>
             <div class="space-y-3">
               <div
-                v-for="subtask in task.subtasks"
-                :key="subtask.id"
+                v-for="(subtask, index) in task.subtasks"
+                :key="index"
                 class="flex items-center gap-3"
               >
                 <UiInput
-                  :id="`subTask-${subtask.id}`"
+                  :id="`subTask-${subtask.title}`"
                   class="flex-1 border-(--color-gray-font) dark:border-(--border-color) dark:text-white"
-                  v-model="subtask.name"
+                  v-model="subtask.title"
                   required
                 />
                 <button
                   v-if="task.subtasks.length > 0"
                   type="button"
-                  @click="handleRemoveSubtask(subtask.id)"
+                  @click="handleRemoveSubtask(subtask.title)"
                   class="text-(--color-gray-font) hover:text-red-500 transition-colors"
                 >
                   X
@@ -132,7 +134,7 @@ const handleSubmit = () => {
             >
               Status
             </UiLabel>
-            <UiSelect>
+            <UiSelect required>
               <UiSelectTrigger
                 class="bg-white dark:bg-(--color-sidebar) dark:text-white w-full"
               >
@@ -142,11 +144,10 @@ const handleSubmit = () => {
                 class="bg-white dark:bg-(--color-sidebar) dark:text-white w-full"
               >
                 <UiSelectItem
-                  v-model="task.statusId"
                   v-for="status in board?.columns"
                   :key="status.id"
                   :value="status.id"
-                  required
+                  @select="setStatus(status.id)"   
                 >
                   {{ status.name }}
                 </UiSelectItem>
